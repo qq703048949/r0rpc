@@ -57,26 +57,25 @@ Root-level Windows-style local startup is no longer part of the project focus.
 - 中文总介绍: [docs/项目总览-中文.md](r0rpc/docs/项目总览-中文.md)
 
 ## 部署
-
-'''
+```
 cd deploy/linux/
 for f in *.sh; do sed -i 's/\r$//' "$f"; done
 chmod +x *.sh
 bash -x ./quickstart.sh
-'''
+```
 
 
 ## pc端转发
-'''
+```
 client_websocket.py
 client_http_proxy.py
 这俩启动后相当于手机端连接服务器，然后对外提供了接口。
 invoke_http_proxy_demo.py  相当于将参数请求通过云服务器 打到pc端接口，来实现建议版内网穿透
-'''
+```
 
 
 ## 额外说明
-'''
+```
 1.http://159.75.100.225:9876/rpc/clientQueue?group=idlefish 拿到group为idlefish 下的所有设备
 
 2.python demo位于examples/python/test_decrypt_demo.py
@@ -96,5 +95,4 @@ sudo mkdir -p /etc/docker/
 }
 
 sudo systemctl daemon-reload && sudo systemctl restart docker
-
-'''
+```
