@@ -1,0 +1,4 @@
+interface:
+  display_name: "R0RPC Operator"
+  short_description: "Help with R0RPC deploy, client, and troubleshooting"
+  default_prompt: "Use $r0rpc-operator to inspect this relay project and help with deploy, client integration, or troubleshooting."

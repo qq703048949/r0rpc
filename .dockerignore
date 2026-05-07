@@ -1,0 +1,9 @@
+.gocache/
+.gomodcache/
+.git/
+bin/
+server.log
+server.err.log
+tools/
+.pylibs/
+python-demo/__pycache__/

@@ -1,0 +1,11 @@
+services:
+  r0rpc:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: r0rpc-server
+    restart: unless-stopped
+    volumes:
+      - ./.env.docker:/app/r0rpc.conf:ro
+    ports:
+      - "${HTTP_EXPOSE_PORT:-8080}:8080"

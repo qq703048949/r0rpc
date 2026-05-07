@@ -1,0 +1,37 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Go
+.gocache/
+*.test
+coverage.out
+
+# Local binaries
+/server.exe
+/server
+
+# Java / Android build output
+**/build/
+**/out/
+**/.gradle/
+clients/xposed-demo/local.properties
+
+# Python cache
+**/__pycache__/
+*.pyc
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
+
+# Local env files
+.env
+.env.*
+
+# Backup files
+*.bak
+*.pre_client_fix.bak

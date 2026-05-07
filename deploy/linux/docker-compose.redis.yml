@@ -1,0 +1,32 @@
+services:
+  redis:
+    image: redis:latest
+    container_name: r0rpc-redis
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: >
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+      exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD";
+      else
+      exec redis-server --appendonly yes;
+      fi'
+    ports:
+      - "${REDIS_EXPOSE_PORT:-6379}:6379"
+    volumes:
+      - r0rpc_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "if [ -n \"$$REDIS_PASSWORD\" ]; then redis-cli -a \"$$REDIS_PASSWORD\" ping; else redis-cli ping; fi"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  r0rpc:
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  r0rpc_redis_data:

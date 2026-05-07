@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>R0RPC Console</title>
+  <link rel="stylesheet" href="/static/app.css?v=20260402i" />
+</head>
+<body>
+  <div class="bg"></div>
+  <main class="layout">
+    <aside class="sidebar">
+      <div class="brand">
+        <p class="eyebrow">R0RPC</p>
+        <h1>&#25511;&#21046;&#21488;</h1>
+        <p class="muted">&#38754;&#21521;&#35774;&#22791; RPC &#36335;&#30001;&#12289;&#30417;&#25511;&#21644;&#36134;&#25143;&#31649;&#29702;&#30340;&#25511;&#21046;&#21488;&#12290;</p>
+      </div>
+
+      <nav id="navMenu" class="menu hidden">
+        <button data-page="overview" class="nav-btn active">&#24635;&#35272;</button>
+        <button data-page="groups" class="nav-btn">Group &#31649;&#29702;</button>
+        <button data-page="clients" class="nav-btn">Group / Client &#27983;&#35272;</button>
+        <button data-page="requests" class="nav-btn">&#35831;&#27714;&#35760;&#24405;</button>
+        <button data-page="devices" class="nav-btn">&#35774;&#22791;&#30417;&#25511;</button>
+        <button data-page="users" class="nav-btn">&#36134;&#25143;&#31649;&#29702;</button>
+        <button data-page="invoke" class="nav-btn">&#25163;&#21160;&#35843;&#29992;</button>
+      </nav>
+
+      <section id="loginPanel" class="login-panel panel">
+        <h2>&#21518;&#21488;&#30331;&#24405;</h2>
+        <form id="loginForm" class="stack">
+          <label><span>&#29992;&#25143;&#21517;</span><input name="username" value="admin" required /></label>
+          <label><span>&#23494;&#30721;</span><input name="password" type="password" value="Admin@123456" required /></label>
+          <button id="loginSubmitBtn" class="primary" type="submit">&#30331;&#24405;</button>
+          <p class="login-hint muted">&#36825;&#37324;&#39044;&#22635;&#20102;&#26412;&#22320;&#40664;&#35748;&#31649;&#29702;&#21592;&#36134;&#21495;&#12290;</p>
+          <p id="loginError" class="login-error hidden"></p>
+        </form>
+      </section>
+
+      <section id="sessionCard" class="panel hidden">
+        <p class="eyebrow">&#24403;&#21069;&#20250;&#35805;</p>
+        <h3 id="sessionText">&#26410;&#30331;&#24405;</h3>
+        <p class="muted" id="sessionTip">&#30331;&#24405;&#21518;&#21487;&#26597;&#30475;&#35774;&#22791;&#12289;&#35831;&#27714;&#35760;&#24405;&#12289;&#25351;&#26631;&#21644;&#36134;&#25143;&#12290;</p>
+        <div class="stack compact">
+          <button id="logoutBtn" class="ghost danger" type="button">&#36864;&#20986;&#30331;&#24405;</button>
+        </div>
+      </section>
+    </aside>
+
+    <section class="content">
+      <header class="topbar panel hidden" id="topbar">
+        <div class="topbar-main">
+          <p class="eyebrow">&#25511;&#21046;&#21488;</p>
+          <h2 id="pageTitle">&#24635;&#35272;</h2>
+        </div>
+        <div class="muted" id="serverMeta">--</div>
+      </header>
+
+      <section id="page-overview" class="page hidden">
+        <div class="page-intro panel">
+          <h3>&#36235;&#21183;&#30475;&#26495;</h3>
+          <p class="muted">&#25353; group&#12289;action &#21644; client &#36807;&#28388;&#26368;&#36817;&#35831;&#27714;&#37327;&#12289;&#25104;&#21151;&#29575;&#21644;&#24310;&#36831;&#12290;</p>
+          <form id="trendFilterForm" class="toolbar-row">
+            <input name="group" placeholder="group" />
+            <input name="action" placeholder="action" />
+            <input name="client" placeholder="clientId" />
+            <input name="days" type="number" min="3" max="30" value="7" />
+            <button class="ghost" type="submit">&#21047;&#26032;&#36235;&#21183;</button>
+          </form>
+        </div>
+
+        <div id="overviewCards" class="cards"></div>
+
+        <article class="panel">
+          <div class="chart-grid">
+            <div class="chart-card">
+              <h4>&#27599;&#26085;&#35831;&#27714;&#37327;</h4>
+              <canvas id="requestsChart" height="220"></canvas>
+            </div>
+            <div class="chart-card">
+              <h4>&#27599;&#26085;&#25104;&#21151;&#29575;</h4>
+              <canvas id="successRateChart" height="220"></canvas>
+            </div>
+            <div class="chart-card span-2">
+              <h4>&#27599;&#26085;&#24179;&#22343;&#24310;&#36831;</h4>
+              <canvas id="latencyChart" height="220"></canvas>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section id="page-groups" class="page hidden">
+        <article class="panel">
+          <div class="panel-head split">
+            <div>
+              <h3>Group &#27010;&#35272;</h3>
+              <p class="muted">&#26597;&#30475; group &#20581;&#24247;&#24230;&#12289;&#35831;&#27714;&#27963;&#36291;&#24230;&#21644;&#22312;&#32447;&#35206;&#30422;&#24773;&#20917;&#12290;</p>
+            </div>
+            <button id="reloadGroupsBtn" class="ghost" type="button">&#21047;&#26032; Group</button>
+          </div>
+          <form id="groupFilterForm" class="toolbar-row">
+            <input name="keyword" placeholder="&#25628;&#32034; group" />
+            <select name="status">
+              <option value="">&#20840;&#37096;&#29366;&#24577;</option>
+              <option value="online">online</option>
+              <option value="offline">offline</option>
+              <option value="stale">stale</option>
+              <option value="no_device">no_device</option>
+            </select>
+            <select name="sort">
+              <option value="recent_request_desc">&#26368;&#36817;&#35831;&#27714;</option>
+              <option value="requests_desc">7&#22825;&#35831;&#27714;</option>
+              <option value="online_desc">&#22312;&#32447;&#35774;&#22791;</option>
+              <option value="devices_desc">&#35774;&#22791;&#24635;&#25968;</option>
+              <option value="success_desc">&#25104;&#21151;&#29575;</option>
+              <option value="name_asc">Group &#21517;&#31216;</option>
+            </select>
+            <select name="pageSize">
+              <option value="10">&#27599;&#39029; 10 &#26465;</option>
+              <option value="20">&#27599;&#39029; 20 &#26465;</option>
+              <option value="50">&#27599;&#39029; 50 &#26465;</option>
+            </select>
+            <button class="ghost" type="submit">&#24212;&#29992;</button>
+          </form>
+          <div id="groupSummaryCards" class="cards compact-cards"></div>
+        </article>
+
+        <article class="panel">
+          <div class="table-wrap tall">
+            <table>
+              <thead>
+                <tr>
+                  <th>Group</th>
+                  <th>&#29366;&#24577;</th>
+                  <th>&#35774;&#22791;&#25968;</th>
+                  <th>&#22312;&#32447;&#25968;</th>
+                  <th>7&#22825;&#35831;&#27714;</th>
+                  <th>&#25104;&#21151;&#29575;</th>
+                  <th>&#26368;&#21518;&#22312;&#32447;</th>
+                  <th>&#26368;&#21518;&#35831;&#27714;</th>
+                  <th>&#25805;&#20316;</th>
+                </tr>
+              </thead>
+              <tbody id="groupsBody"></tbody>
+            </table>
+          </div>
+          <div class="pager-row">
+            <button id="groupsPrevBtn" class="ghost mini-btn" type="button">&#19978;&#19968;&#39029;</button>
+            <div class="muted" id="groupsPageInfo">? 1 ?</div>
+            <button id="groupsNextBtn" class="ghost mini-btn" type="button">&#19979;&#19968;&#39029;</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="page-clients" class="page hidden">
+        <article class="panel">
+          <div class="panel-head split">
+            <div>
+              <h3>Client &#27983;&#35272;</h3>
+              <p class="muted">&#30452;&#25509;&#26597;&#30475; client &#21015;&#34920;&#65292;&#25353; group &#31579;&#36873;&#21518;&#28857;&#20987;&#35814;&#24773;&#21363;&#21487;&#12290;</p>
+            </div>
+            <button id="reloadClientExplorerBtn" class="ghost" type="button">&#21047;&#26032;&#27983;&#35272;&#39029;</button>
+          </div>
+        </article>
+
+        <div class="grid-client-explorer wide-layout">
+          <article class="panel explorer-panel tree-panel">
+            <div class="panel-head split">
+              <div>
+                <h3>Client &#21015;&#34920;</h3>
+                <p class="muted">&#30452;&#25509;&#25353; group&#12289;client &#21644;&#29366;&#24577;&#31579;&#36873;&#65292;&#29992;&#34920;&#26684;&#23637;&#31034;</p>
+              </div>
+            </div>
+            <form id="clientExplorerGroupForm" class="stack compact client-browser-filters">
+              <input name="groupKeyword" placeholder="&#25353; group &#36807;&#28388;" />
+              <input name="clientKeyword" placeholder="&#25628;&#32034; clientId / IP / &#24179;&#21488;" />
+              <select name="clientStatus">
+                <option value="">&#20840;&#37096; client &#29366;&#24577;</option>
+                <option value="online">online</option>
+                <option value="offline">offline</option>
+              </select>
+            </form>
+            <div id="clientExplorerTree" class="explorer-flat-list"></div>
+          </article>
+
+          <article class="panel explorer-panel detail-panel">
+            <div class="panel-head split">
+              <div>
+                <h3 id="clientExplorerTitle">Client &#27983;&#35272;</h3>
+                <p class="muted" id="clientExplorerSubTitle">&#36873;&#25321; group &#25110; client &#26597;&#30475;&#35814;&#24773;&#21644;&#26368;&#36817;&#27963;&#21160;&#12290;</p>
+              </div>
+            </div>
+            <div id="clientExplorerSummary" class="cards compact-cards"></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="page-requests" class="page hidden">
+        <article class="panel">
+          <div class="panel-head split">
+            <div>
+              <h3>&#35831;&#27714;&#35760;&#24405;</h3>
+              <p class="muted">&#34920;&#26684;&#37324;&#19981;&#30452;&#25509;&#23637;&#31034;&#35831;&#27714;&#21442;&#25968;&#21644;&#36820;&#22238;&#32467;&#26524;&#65292;&#28857;&#20987;&#26597;&#30475;&#20877;&#25171;&#24320;&#21407;&#22987; JSON&#12290;</p>
+            </div>
+            <button id="reloadRequestsBtn" class="ghost" type="button">&#21047;&#26032;&#35831;&#27714;</button>
+          </div>
+          <form id="requestFilterForm" class="toolbar-row">
+            <select name="group"><option value="">&#20840;&#37096; group</option></select>
+            <select name="action"><option value="">&#20840;&#37096; action</option></select>
+            <select name="client"><option value="">&#20840;&#37096; client</option></select>
+            <select name="status">
+              <option value="">&#20840;&#37096;&#29366;&#24577;</option>
+              <option value="success">success</option>
+              <option value="timeout">timeout</option>
+              <option value="error">error</option>
+              <option value="no_client">no_client</option>
+              <option value="rejected">rejected</option>
+            </select>
+            <button class="ghost" type="submit">&#24212;&#29992;</button>
+          </form>
+          <div class="table-wrap tall">
+            <table>
+              <thead>
+                <tr>
+                  <th>&#24320;&#22987;&#26102;&#38388;</th>
+                  <th>&#23436;&#25104;&#26102;&#38388;</th>
+                  <th>Group</th>
+                  <th>Action</th>
+                  <th>Client</th>
+                  <th>&#29366;&#24577;</th>
+                  <th>HTTP</th>
+                  <th>&#24310;&#36831;</th>
+                  <th>&#26597;&#30475;</th>
+                </tr>
+              </thead>
+              <tbody id="requestsBody"></tbody>
+            </table>
+          </div>
+          <div class="pager-row">
+            <button id="requestsPrevBtn" class="ghost mini-btn" type="button">&#19978;&#19968;&#39029;</button>
+            <div class="muted" id="requestsPageInfo">? 1 ?</div>
+            <button id="requestsNextBtn" class="ghost mini-btn" type="button">&#19979;&#19968;&#39029;</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="page-devices" class="page hidden">
+        <article class="panel">
+          <div class="panel-head split">
+            <div>
+              <h3>&#35774;&#22791;&#30417;&#25511;</h3>
+              <p class="muted">&#36825;&#37324;&#26597;&#30475;&#35774;&#22791;&#21608;&#32500;&#24230;&#25351;&#26631;&#65292;&#28857;&#20987;&#26597;&#30475;&#21487;&#25171;&#24320; 15 &#22825;&#35814;&#24773;&#12290;</p>
+            </div>
+            <button id="reloadDevicesBtn" class="ghost" type="button">&#21047;&#26032;&#35774;&#22791;</button>
+          </div>
+          <form id="metricsFilterForm" class="toolbar-row">
+            <input name="group" placeholder="group" />
+            <input name="client" placeholder="clientId" />
+            <button class="ghost" type="submit">&#24212;&#29992;</button>
+          </form>
+          <div id="deviceSummaryCards" class="cards compact-cards"></div>
+        </article>
+
+        <article class="panel">
+          <div class="table-wrap tall device-weekly-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Group</th>
+                  <th>&#24635;&#35831;&#27714;&#25968;</th>
+                  <th>&#25104;&#21151;</th>
+                  <th>&#22833;&#36133;</th>
+                  <th>&#36229;&#26102;</th>
+                  <th>&#24179;&#22343;&#24310;&#36831;</th>
+                  <th>&#25805;&#20316;</th>
+                </tr>
+              </thead>
+              <tbody id="weeklyMetricsBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section id="page-users" class="page hidden">
+        <div class="grid-users">
+          <article class="panel users-list-panel">
+            <div class="panel-head split">
+              <div>
+                <h3>&#36134;&#25143;&#21015;&#34920;</h3>
+                <p class="muted">&#20808;&#30475;&#29616;&#26377;&#36134;&#25143;&#65292;&#20877;&#20915;&#23450;&#26159;&#21542;&#31105;&#29992;&#12289;&#37325;&#32622;&#23494;&#30721;&#25110;&#35843;&#25972; RPC &#26435;&#38480;&#12290;</p>
+              </div>
+              <button id="reloadUsersBtn" class="ghost" type="button">&#21047;&#26032;&#36134;&#25143;</button>
+            </div>
+            <div class="table-wrap tall users-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>&#29992;&#25143;&#21517;</th>
+                    <th>&#35282;&#33394;</th>
+                    <th>&#21551;&#29992;</th>
+                    <th>RPC</th>
+                    <th>&#26368;&#36817;&#30331;&#24405;</th>
+                    <th>&#25805;&#20316;</th>
+                  </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <aside class="users-side">
+            <article class="panel users-create-panel">
+              <div class="panel-head">
+                <div>
+                  <h3>&#21019;&#24314;&#36134;&#21495;</h3>
+                  <p class="muted">&#21019;&#24314;&#34920;&#21333;&#25918;&#22312;&#21491;&#20391;&#65292;&#24038;&#20391;&#20027;&#21306;&#22495;&#19987;&#27880;&#23637;&#31034;&#36134;&#25143;&#21015;&#34920;&#12290;</p>
+                </div>
+              </div>
+              <form id="createUserForm" class="form-grid form-grid-single users-form">
+                <label><span>&#29992;&#25143;&#21517;</span><input name="username" required /></label>
+                <label><span>&#23494;&#30721;</span><input name="password" type="password" required /></label>
+                <label><span>&#35282;&#33394;</span><select name="role"><option value="client">client</option><option value="admin">admin</option></select></label>
+                <label><span>&#21551;&#29992;</span><select name="enabled"><option value="true">&#21551;&#29992;</option><option value="false">&#31105;&#29992;</option></select></label>
+                <label><span>RPC &#26435;&#38480;</span><select name="canRpc"><option value="true">&#20801;&#35768;</option><option value="false">&#31105;&#27490;</option></select></label>
+                <label><span>&#35828;&#26126;</span><textarea name="notes" placeholder="&#20363;&#22914;&#65306;&#27979;&#35797;&#26426; / Android 15 / demo"></textarea></label>
+                <button class="primary users-submit" type="submit">&#21019;&#24314;&#36134;&#21495;</button>
+              </form>
+            </article>
+
+            <article class="panel users-tips-panel">
+              <h4>&#31616;&#35201;&#35828;&#26126;</h4>
+              <div class="users-tip-list">
+                <div class="users-tip-item"><strong>client</strong><span class="muted">&#36866;&#21512;&#35774;&#22791;&#25110;&#33050;&#26412;&#65292;&#21482;&#38656;&#35201; RPC &#26435;&#38480;&#12290;</span></div>
+                <div class="users-tip-item"><strong>admin</strong><span class="muted">&#36866;&#21512;&#38656;&#35201;&#30331;&#24405;&#25511;&#21046;&#21488;&#30340;&#31649;&#29702;&#21592;&#12290;</span></div>
+                <div class="users-tip-item"><strong>&#31105;&#29992;</strong><span class="muted">&#36866;&#21512;&#20020;&#26102;&#20923;&#32467;&#36134;&#25143;&#65292;&#21516;&#26102;&#20445;&#30041;&#21382;&#21490;&#35760;&#24405;&#12290;</span></div>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </section>
+
+      <section id="page-invoke" class="page hidden">
+        <article class="panel">
+          <div class="panel-head split">
+            <div>
+              <h3>&#25163;&#21160;&#35843;&#29992; RPC</h3>
+              <p class="muted">&#36825;&#19968;&#39029;&#20250;&#23637;&#31034;&#23436;&#25972;&#35831;&#27714;&#20307;&#21644;&#23436;&#25972;&#21407;&#22987;&#36820;&#22238;&#20307;&#12290;</p>
+            </div>
+          </div>
+          <form id="invokeForm" class="form-grid">
+            <label><span>Group</span><input name="group" value="demo-group" required /></label>
+            <label><span>Action</span><input name="action" value="ping" required /></label>
+            <label><span>ClientId</span><input name="clientId" placeholder="&#21487;&#36873;&#65292;&#30041;&#31354;&#34920;&#31034;&#30001;&#26381;&#21153;&#31471;&#33258;&#21160;&#36335;&#30001;&#12290;" /></label>
+            <label><span>&#36229;&#26102;&#31186;&#25968;</span><input name="timeoutSeconds" type="number" min="1" max="120" value="20" /></label>
+            <label class="span-2"><span>Payload JSON</span><textarea name="payload">{
+  "msg": "hello from console"
+}</textarea></label>
+            <button class="primary" type="submit">&#21457;&#36215;&#35843;&#29992;</button>
+          </form>
+          <pre id="invokeResult" class="code-block">&#31561;&#24453;&#35843;&#29992;&#32467;&#26524;...</pre>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <div id="clientDetailModal" class="client-detail-modal hidden">
+    <div id="clientDetailBackdrop" class="client-detail-backdrop"></div>
+    <div class="client-detail-drawer">
+      <article class="panel client-detail-panel">
+        <div class="panel-head split">
+          <div>
+            <h3>Client &#35814;&#24773;</h3>
+            <p class="muted">&#26597;&#30475;&#24403;&#21069;&#36873;&#20013; client &#30340;&#35774;&#22791;&#20449;&#24687;&#21644;&#26368;&#36817;&#27963;&#21160;&#12290;</p>
+          </div>
+          <button class="ghost" type="button" onclick="closeClientDetailModal()">&#20851;&#38381;</button>
+        </div>
+        <div id="clientInfoGrid" class="info-grid"></div>
+        <article class="panel">
+          <div class="panel-head"><div><h4>&#26368;&#36817;&#32467;&#26524;&#25688;&#35201;</h4></div></div>
+          <pre id="clientLatestResult" class="code-block compact-code">-</pre>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><div><h4>&#26368;&#36817;&#35831;&#27714;</h4></div></div>
+          <div class="table-wrap tall">
+            <table>
+              <thead>
+                <tr><th>&#24320;&#22987;&#26102;&#38388;</th><th>Action</th><th>&#29366;&#24577;</th><th>&#24310;&#36831;</th><th>&#26597;&#30475;</th></tr>
+              </thead>
+              <tbody id="clientRecentRequestsBody"></tbody>
+            </table>
+          </div>
+        </article>
+      </article>
+    </div>
+  </div>
+
+  <div id="deviceTrendModal" class="client-detail-modal hidden">
+    <div id="deviceTrendBackdrop" class="client-detail-backdrop"></div>
+    <div class="device-trend-drawer">
+      <article class="panel device-trend-panel">
+        <div class="panel-head split">
+          <div>
+            <h3 id="deviceTrendTitle">&#35774;&#22791; 15 &#22825;&#36235;&#21183;</h3>
+            <p class="muted" id="deviceTrendMeta">--</p>
+          </div>
+          <button class="ghost" type="button" onclick="closeDeviceTrendModal()">&#20851;&#38381;</button>
+        </div>
+        <div class="device-trend-chart-stack">
+          <div class="chart-card">
+            <h4>&#35831;&#27714;&#37327;</h4>
+            <canvas id="deviceTrendRequestsChart" height="180"></canvas>
+          </div>
+          <div class="chart-card">
+            <h4>&#25104;&#21151;&#29575;</h4>
+            <canvas id="deviceTrendSuccessChart" height="180"></canvas>
+          </div>
+        </div>
+        <div class="table-wrap tall device-daily-table-wrap">
+          <table>
+            <thead>
+              <tr><th>&#26085;&#26399;</th><th>Group</th><th>&#24635;&#35831;&#27714;&#25968;</th><th>&#25104;&#21151;</th><th>&#22833;&#36133;</th><th>&#36229;&#26102;</th><th>&#26368;&#22823;&#24310;&#36831;</th></tr>
+            </thead>
+            <tbody id="deviceTrendBody"></tbody>
+          </table>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div id="requestDetailModal" class="client-detail-modal hidden">
+    <div id="requestDetailBackdrop" class="client-detail-backdrop"></div>
+    <div class="request-detail-drawer">
+      <article class="panel request-detail-panel">
+        <div class="panel-head split">
+          <div>
+            <h3 id="requestDetailTitle">&#35831;&#27714;&#35814;&#24773;</h3>
+            <p class="muted" id="requestDetailMeta">--</p>
+          </div>
+          <button class="ghost" type="button" onclick="closeRequestDetailModal()">&#20851;&#38381;</button>
+        </div>
+        <div id="requestDetailSummary" class="request-detail-summary info-grid"></div>
+        <div class="request-detail-grid">
+          <section class="request-detail-block">
+            <div class="request-detail-block-head">
+              <h4>&#21407;&#22987;&#35831;&#27714; JSON</h4>
+              <button id="requestDetailRequestCopyBtn" class="ghost mini-btn" type="button">&#22797;&#21046;</button>
+            </div>
+            <pre id="requestDetailRequestPayload" class="code-block request-detail-code">-</pre>
+          </section>
+          <section class="request-detail-block">
+            <div class="request-detail-block-head">
+              <h4 id="requestDetailResponseTitle">&#21407;&#22987;&#36820;&#22238; JSON</h4>
+              <button id="requestDetailResponseCopyBtn" class="ghost mini-btn" type="button">&#22797;&#21046;</button>
+            </div>
+            <pre id="requestDetailResponsePayload" class="code-block request-detail-code">-</pre>
+          </section>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js?v=20260402i"></script>
+</body>
+</html>
+

@@ -1,0 +1,28 @@
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: r0rpc-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      TZ: ${TZ:-Asia/Shanghai}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "${MYSQL_EXPOSE_PORT:-3306}:3306"
+    volumes:
+      - r0rpc_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  r0rpc:
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  r0rpc_mysql_data:
